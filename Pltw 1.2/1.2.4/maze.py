@@ -3,6 +3,7 @@ import turtle
 screen = turtle.Screen()
 mazePainter = turtle.Turtle()
 mazePainter.width(5)
+mazePainter.speed(1)
 
 MAZE_SIZE = 15
 MAZE_WIDTH = 35
@@ -13,7 +14,8 @@ def makeDoor(index):
     mazePainter.penup()
     mazePainter.forward(DOOR_SIZE)
     mazePainter.pendown()
-    mazePainter.forward((MAZE_WIDTH/2 * index) - DOOR_SIZE)
+    mazePainter.forward(MAZE_WIDTH/2 * index - DOOR_SIZE)
+    print(MAZE_WIDTH/2 * index - DOOR_SIZE)
 
 def makeBarrier(index):
     mazePainter.penup()
@@ -27,14 +29,15 @@ def makeBarrier(index):
     mazePainter.forward((MAZE_WIDTH/2 * index) + 35)
     mazePainter.pendown()
 
+def makeWall(index):
+    mazePainter.forward(MAZE_WIDTH * index)
+
 
 def makeMaze():
     for i in range(MAZE_SIZE):
-        mazePainter.forward(MAZE_WIDTH * i)
-        makeBarrier(i)
+        makeDoor(i)
         mazePainter.left(90)
-        mazePainter.forward(MAZE_WIDTH * i)
-        makeBarrier(i)
+        makeDoor(i)
         mazePainter.left(90)
 
 makeMaze()
