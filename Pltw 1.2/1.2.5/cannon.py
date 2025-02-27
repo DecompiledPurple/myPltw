@@ -10,8 +10,13 @@ projectiles = []
 processing = False
 fireAngle = 90
 
+TRAIL = True
+
 GRAVITY = 1
 STRENGTH = 25
+ELASTICITY = 0.7
+MAX_BOUNCES = 10
+FLOOR = -300
 
 
 #initialize
@@ -27,16 +32,18 @@ class createProjectile():
           self.turtle = turtle
           self.xForce = xForce
           self.yForce = yForce
+          self.bounces = 0
 
-
-#functions
-
+#functions 
 def launch(_x,_y):
     global processing
 
     # create new projectile
     newProjectile = turtle.Turtle(shape="circle")
+    newProjectile.penup()
     newProjectile.goto(cannon.position())
+    if TRAIL:
+        newProjectile.pendown()
     newProjectile.setheading(cannon.heading())
     angleInRadians = math.radians(fireAngle)
     # calculate angle to set a trajectory to our individual projectile 
@@ -49,26 +56,24 @@ def launch(_x,_y):
     # processing the movement of all live projectiles
     if not processing: 
         processing = True
-        maxProcess = 1000 #temporary for control
         while processing:     
             #loop through all projectiles, move each, then refresh the frame, simulating simoultaneous movement
-            if maxProcess > 0:
-                for projectile in projectiles:
+            for projectile in projectiles:
+                    x,y = projectile.turtle.position()
+                    if y > FLOOR:
                         projectile.yForce = projectile.yForce - GRAVITY
-                        x,y = projectile.turtle.position()
-
                         projectile.turtle.goto(x + projectile.xForce, y + projectile.yForce)
-
-                        maxProcess -= 1
-                        
-                screen.update()
-            else: 
-                processing = False
-                for projectile in projectiles:
-                    projectiles.remove(projectile)
-                    projectile.hideturtle()
-                    del projectile
-                screen.update()
+                    elif projectile.bounces < MAX_BOUNCES: 
+                        if projectile.yForce < 0:
+                            projectile.bounces = projectile.bounces + 1
+                            projectile.yForce = -projectile.yForce * ELASTICITY
+                        projectile.turtle.goto(x + projectile.xForce, y + projectile.yForce)
+                    else:
+                        projectiles.remove(projectile)
+                        projectile.turtle.clear()
+                        projectile.turtle.hideturtle()
+                        del projectile
+            screen.update()
             time.sleep(0.01)
                            
         
