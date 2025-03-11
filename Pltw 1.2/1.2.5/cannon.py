@@ -10,14 +10,19 @@ projectiles = []
 processing = False
 fireAngle = 90
 
-TRAIL = True
 
-GRAVITY = 1
+# Settings / constants (play around with these)
+TRAIL = False 
+
+GRAVITY = 1 
 STRENGTH = 25
 ELASTICITY = 0.7
-MAX_BOUNCES = 10
-FLOOR = -300
+MAX_BOUNCES = 10 # high amounts of projectiles might cause lag - so I recommend keeping this low.
 
+#These depend on the size of your screen. Only increase or decrease numbers, don't swap the signs. 
+FLOOR = -300
+WALL1 = 500
+WALL2 = -500
 
 #initialize
 cannon.penup()
@@ -60,15 +65,22 @@ def launch(_x,_y):
             #loop through all projectiles, move each, then refresh the frame, simulating simoultaneous movement
             for projectile in projectiles:
                     x,y = projectile.turtle.position()
-                    if y > FLOOR:
+                    if y > FLOOR and x < WALL1 and x > WALL2:
+                        #move the projectile normally without bouncing
                         projectile.yForce = projectile.yForce - GRAVITY
                         projectile.turtle.goto(x + projectile.xForce, y + projectile.yForce)
                     elif projectile.bounces < MAX_BOUNCES: 
-                        if projectile.yForce < 0:
+                        if projectile.yForce < 0 and y <= FLOOR:
+                            #bounce vertically
                             projectile.bounces = projectile.bounces + 1
                             projectile.yForce = -projectile.yForce * ELASTICITY
+                        if (x >= WALL1 and projectile.xForce > 0) or (x <= WALL2 and projectile.xForce < 0):
+                            #bounce horizontally
+                            projectile.bounces = projectile.bounces + 1
+                            projectile.xForce = -projectile.xForce * ELASTICITY
+                            
                         projectile.turtle.goto(x + projectile.xForce, y + projectile.yForce)
-                    else:
+                    else:   
                         projectiles.remove(projectile)
                         projectile.turtle.clear()
                         projectile.turtle.hideturtle()
@@ -76,10 +88,6 @@ def launch(_x,_y):
             screen.update()
             time.sleep(0.01)
                            
-        
-
-
-
 def aim(event):
     #offset the position down to the middle of the screen
     x = event.x - screen.window_width() / 2
